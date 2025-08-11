@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from twilio.rest import Client
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 import openai
 import os
 import json
@@ -63,9 +63,7 @@ def _get_google_sheet():
             "universe_domain": "googleapis.com"
         }
         
-        creds = ServiceAccountCredentials.from_json_keyfile_dict(
-            service_account_info, scope
-        )
+        creds = Credentials.from_service_account_info(service_account_info, scopes=scope)
         gc = gspread.authorize(creds)
         sheet_id = os.environ.get("SHEET_ID")
         _gsheet = gc.open_by_key(sheet_id).sheet1
