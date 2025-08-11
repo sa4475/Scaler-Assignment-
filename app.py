@@ -47,12 +47,18 @@ def _get_google_sheet():
             "https://www.googleapis.com/auth/drive",
         ]
         
-        # Decode base64 credentials
+        # Use environment variable for credentials (secure for Git)
         creds_b64 = os.environ.get("GOOGLE_CREDS_B64")
-        creds_json = base64.b64decode(creds_b64).decode('utf-8')
-        service_account_info = json.loads(creds_json)
+        if not creds_b64:
+            raise Exception("GOOGLE_CREDS_B64 environment variable is required")
         
-        creds = Credentials.from_service_account_info(service_account_info, scopes=scope)
+        try:
+            creds_json = base64.b64decode(creds_b64).decode('utf-8')
+            service_account_info = json.loads(creds_json)
+            creds = Credentials.from_service_account_info(service_account_info, scopes=scope)
+        except Exception as e:
+            raise Exception(f"Failed to decode Google credentials: {e}")
+        
         gc = gspread.authorize(creds)
         sheet_id = os.environ.get("SHEET_ID")
         _gsheet = gc.open_by_key(sheet_id).sheet1
