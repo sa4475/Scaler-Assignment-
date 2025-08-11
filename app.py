@@ -23,7 +23,7 @@ def _missing_env_vars():
         "SHEET_ID",
         "CLASS_DATETIME",
         "CLASS_JOIN_LINK",
-        "GOOGLE_SERVICE_ACCOUNT_JSON",
+        "GOOGLE_CREDENTIALS",
     ]
     missing = [v for v in required_vars if not os.environ.get(v)]
     return missing
@@ -45,7 +45,7 @@ def _get_google_sheet():
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive",
         ]
-        service_account_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+        service_account_json = os.environ.get("GOOGLE_CREDENTIALS")
         service_account_info = json.loads(service_account_json)
         creds = ServiceAccountCredentials.from_json_keyfile_dict(
             service_account_info, scope
