@@ -5,6 +5,7 @@ from google.oauth2.service_account import Credentials
 import openai
 import os
 import json
+import base64
 from datetime import datetime
 
 app = Flask(__name__)
@@ -23,9 +24,7 @@ def _missing_env_vars():
         "SHEET_ID",
         "CLASS_DATETIME",
         "CLASS_JOIN_LINK",
-        "GOOGLE_CLIENT_EMAIL",
-        "GOOGLE_PRIVATE_KEY",
-        "GOOGLE_PROJECT_ID",
+        "GOOGLE_CREDS_B64",
     ]
     missing = [v for v in required_vars if not os.environ.get(v)]
     return missing
@@ -48,20 +47,10 @@ def _get_google_sheet():
             "https://www.googleapis.com/auth/drive",
         ]
         
-        # Build service account info from individual env vars
-        service_account_info = {
-            "type": "service_account",
-            "project_id": os.environ.get("GOOGLE_PROJECT_ID"),
-            "private_key_id": "667719dc06b3ca5e54c864b67b8470825e2f5eb0",
-            "private_key": os.environ.get("GOOGLE_PRIVATE_KEY"),
-            "client_email": os.environ.get("GOOGLE_CLIENT_EMAIL"),
-            "client_id": "102668509373058582691",
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/whatsapp-bot-sa%40whatsappbot-468708.iam.gserviceaccount.com",
-            "universe_domain": "googleapis.com"
-        }
+        # Decode base64 credentials
+        creds_b64 = os.environ.get("GOOGLE_CREDS_B64")
+        creds_json = base64.b64decode(creds_b64).decode('utf-8')
+        service_account_info = json.loads(creds_json)
         
         creds = Credentials.from_service_account_info(service_account_info, scopes=scope)
         gc = gspread.authorize(creds)
