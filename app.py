@@ -23,7 +23,9 @@ def _missing_env_vars():
         "SHEET_ID",
         "CLASS_DATETIME",
         "CLASS_JOIN_LINK",
-        "GOOGLE_CREDENTIALS",
+        "GOOGLE_CLIENT_EMAIL",
+        "GOOGLE_PRIVATE_KEY",
+        "GOOGLE_PROJECT_ID",
     ]
     missing = [v for v in required_vars if not os.environ.get(v)]
     return missing
@@ -45,8 +47,22 @@ def _get_google_sheet():
             "https://spreadsheets.google.com/feeds",
             "https://www.googleapis.com/auth/drive",
         ]
-        service_account_json = os.environ.get("GOOGLE_CREDENTIALS")
-        service_account_info = json.loads(service_account_json)
+        
+        # Build service account info from individual env vars
+        service_account_info = {
+            "type": "service_account",
+            "project_id": os.environ.get("GOOGLE_PROJECT_ID"),
+            "private_key_id": "667719dc06b3ca5e54c864b67b8470825e2f5eb0",
+            "private_key": os.environ.get("GOOGLE_PRIVATE_KEY"),
+            "client_email": os.environ.get("GOOGLE_CLIENT_EMAIL"),
+            "client_id": "102668509373058582691",
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/whatsapp-bot-sa%40whatsappbot-468708.iam.gserviceaccount.com",
+            "universe_domain": "googleapis.com"
+        }
+        
         creds = ServiceAccountCredentials.from_json_keyfile_dict(
             service_account_info, scope
         )
